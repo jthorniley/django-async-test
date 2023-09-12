@@ -8,6 +8,8 @@ from app.models import MyModel
 @sync_to_async
 def sub_task():
     instance = MyModel.objects.create(current_time=int(time.time()))
+    time.sleep(1)
+    instance.save()
     return instance.current_time
 
 
