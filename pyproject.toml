@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "django-async-test"
+version = "0.1.0"
+description = ""
+authors = ["James Thorniley <james.thorniley@mixcloud.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.2.5"
+channels = "^4.0.0"
+daphne = "^4.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
