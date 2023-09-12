@@ -1,8 +1,12 @@
 import asyncio
+import threading
 import time
 from django.http import HttpResponse
 from asgiref.sync import sync_to_async, async_to_sync
 from app.models import MyModel
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def sync_response():
@@ -19,6 +23,13 @@ async def task_runner():
 
 # Create your views here.
 def foo(request):
+    logging.info("thread id %s", threading.current_thread())
     if request.GET.get("safe"):
-        return HttpResponse(sync_response())
-    return HttpResponse(task_runner())
+        logging.info("performing safe request in thread %s", threading.current_thread())
+        response = HttpResponse(sync_response())
+        logging.info("finished %s", threading.current_thread())
+        return response
+    logging.info("performing unsafe request in thread %s", threading.current_thread())
+    response = HttpResponse(task_runner())
+    logging.info("finished %s", threading.current_thread())
+    return response
