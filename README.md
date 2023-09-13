@@ -58,17 +58,8 @@ The local asgi server now responds correctly:
 
 Navigate in a browser: http://localhost:8000 now works.
 
-However, use the load_test.py to simulate 100 simultaneous requests:
+## Load test
+
+To confirm we have sensible behaviour in response to large numbers of requests, use:
 
     poetry run python load_test.py
-
-This creates a file called error.html which is the server response when it eventually
-fails - it shows
-
-    OperationalError at /
-    (1040, 'Too many connections')
-
-This is mysql complaining that there are too many parallel connections open.
-
-However - again, using http://localhost:8000/?safe=1 (change the url in `load_test.py`)
-it will be successful.
