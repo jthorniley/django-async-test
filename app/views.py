@@ -9,7 +9,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def sync_response():
+def sync_response(request):
+    logging.info(
+        f"REQUEST ID: {id(request):10d} sync_response thread {threading.current_thread()}"
+    )
     instance = MyModel.objects.create(current_time=int(time.time()))
     time.sleep(1)
     instance.save()
@@ -17,19 +20,45 @@ def sync_response():
 
 
 @async_to_sync
-async def task_runner():
-    return await asyncio.create_task(sync_to_async(sync_response)())
+async def async_response(request):
+    logging.info(
+        f"REQUEST ID: {id(request):10d} async_response thread {threading.current_thread()}"
+    )
+    instance = await MyModel.objects.acreate(current_time=int(time.time()))
+    await asyncio.sleep(1)
+    return instance.current_time
+
+
+@async_to_sync
+async def task_runner(request):
+    logging.info(
+        f"REQUEST ID: {id(request):10d} task_runner thread {threading.current_thread()}"
+    )
+    return await asyncio.create_task(sync_to_async(sync_response)(request))
 
 
 # Create your views here.
 def foo(request):
-    logging.info("thread id %s", threading.current_thread())
+    logging.info(f"REQUEST ID: {id(request):10d} {threading.current_thread()}")
+
     if request.GET.get("safe"):
-        logging.info("performing safe request in thread %s", threading.current_thread())
-        response = HttpResponse(sync_response())
-        logging.info("finished %s", threading.current_thread())
+        # If requested, perform request in pure sync context
+        logging.info(f"REQUEST ID: {id(request):10d}   safe option set")
+        response = HttpResponse(sync_response(request))
+        logging.info(f"REQUEST ID: {id(request):10d}   done")
         return response
-    logging.info("performing unsafe request in thread %s", threading.current_thread())
-    response = HttpResponse(task_runner())
-    logging.info("finished %s", threading.current_thread())
+
+    if request.GET.get("notask"):
+        # If requested, perform request in async thread without creating a separate task
+        logging.info(f"REQUEST ID: {id(request):10d}   no task option set")
+        response = HttpResponse(async_response(request))
+        logging.info(f"REQUEST ID: {id(request):10d}   done")
+        return response
+
+    # Default: we wrap the sync_response work function in:
+    #  -> async_to_sync(task_runner)   === running in a thread created by async_to_sync
+    #  -> asyncio.create_task()        === creates a new asyncio.Task instance
+    #  -> sync_to_async(sync_response) === should run in this thread (sync_to_async finds the sync thread above it in the stack)
+    response = HttpResponse(task_runner(request))
+    logging.info(f"REQUEST ID: {id(request):10d}   done")
     return response

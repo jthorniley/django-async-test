@@ -4,8 +4,8 @@ import pathlib
 
 
 async def run_test():
-    async with AsyncClient() as client:
-        requests = [client.request("GET", "http://localhost:8000/") for _ in range(4)]
+    async with AsyncClient(timeout=40) as client:
+        requests = [client.request("GET", "http://localhost:8000/") for _ in range(300)]
         results = await asyncio.gather(*requests)
 
         for result in results:
