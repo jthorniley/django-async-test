@@ -40,15 +40,7 @@ INSTALLED_APPS = [
     "app",
 ]
 
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-]
+MIDDLEWARE = []
 
 ROOT_URLCONF = "django_async_test.urls"
 
@@ -76,8 +68,12 @@ WSGI_APPLICATION = "django_async_test.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "djangoasynctest",
+        "USER": "djangoasynctest",
+        "PASSWORD": "djangoasynctest",
+        "HOST": "127.0.0.1",
+        "PORT": "3307",
     }
 }
 
@@ -122,3 +118,20 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "root": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+    },
+}
